@@ -237,6 +237,7 @@ build-optee-client $(optee-client-files): $(aarch64-linux-gnu-gcc)
 	$(ECHO) '  BUILD   optee_client'
 	$(Q)$(MAKE) -C optee_client \
 	    -j$(_NPROCESSORS_ONLN) \
+	    CFG_TEE_CLIENT_LOG_LEVEL=4 \
 	    CROSS_COMPILE="$(CCACHE)aarch64-linux-gnu-"
 
 clean-optee-client:
@@ -262,6 +263,7 @@ build-optee-linuxdriver $(optee-linuxdriver-files): linux/arch/arm64/boot/Image 
 	   CROSS_COMPILE="$(CCACHE)aarch64-linux-gnu-" \
 	   LOCALVERSION= \
 	   M=../optee_linuxdriver \
+	   DEBUG=1 \
 	   modules
 
 clean-optee-linuxdriver: clean-dtb
@@ -404,7 +406,7 @@ build-app:: do-build-app
 
 .PHONY: do-build-app
 do-build-app $(app-files): $(optee-client-files) $(optee-os-files)
-	$(MAKE) -C app
+	$(MAKE) CFG_TEE_TA_LOG_LEVEL=4 -C app
 
 .PHONY: clean-app
 clean-app:

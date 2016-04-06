@@ -45,12 +45,14 @@ modprobe optee_armtz
 sleep 1
 tee-supplicant&
 secvideo_demo -h
-# -ns: do not make output buffer secure, -r: read data from NS world
+# -s:  make output buffer secure
 # This succeeds: decrypted data can be read from non-secure output buffer
 # (0xff's are read which is the white background)
-secvideo_demo -ns linaro-logo-web.rgba.aes -r
+secvideo_demo linaro-logo-web.rgba.aes -r
 # Clear screen
 secvideo_demo -c
+# Make output buffer secure
+secvideo_demo -s
 # This fails: image is displayed but NS world can't read from secure
 # output buffer (only 0x00's are read)
 secvideo_demo linaro-logo-web.rgba.aes -r

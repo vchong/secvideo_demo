@@ -43,6 +43,7 @@ enum {
 	 * - params[1].value.b contains flags (IMAGE_START, etc.)
 	 */
 	TA_SECVIDEO_DEMO_IMAGE_DATA,
+	TA_SECVIDEO_DEMO_MAKESECURE,
 };
 
 /* Image data flags */

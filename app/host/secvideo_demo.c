@@ -81,6 +81,7 @@ static void usage()
 				shm.size);
 	FP(" -c       Clear the FVP LCD screen.\n");
 	FP(" -ns      Do not make output memory secure\n");
+	FP(" -s       Make output memory secure\n");
 	FP(" -r       Try to read back from output memory\n");
 	FP(" <file>   Display file (800x600 32-bit RGBA, A is ignored).\n");
 	FP("          If extension is .aes, the file is assumed to be "
@@ -103,6 +104,8 @@ static void clear_screen(uint32_t color)
 	TEEC_Operation op;
 	uint32_t err_origin;
 
+	PR("CLEAR_SCREEN\n");
+
 	memset(&op, 0, sizeof(op));
 	op.paramTypes = TEEC_PARAM_TYPES(TEEC_VALUE_INPUT, TEEC_NONE,
 					 TEEC_NONE, TEEC_NONE);
@@ -121,6 +124,8 @@ static void allocate_outputmem(void)
 	struct secfb_io secfb;
 	void *mmaped;
 	TEEC_Result res;
+
+	PR("allocate_outputmem\n");
 
 	secfb_dev = open("/dev/secfb", 0);
 	if (secfb_dev < 0) {
@@ -173,6 +178,8 @@ static size_t send_image_data(size_t sz, size_t offset, int flags)
 	TEEC_Operation op;
 	uint32_t err_origin;
 
+	PR("send_image_data\n");
+
 	op.paramTypes = TEEC_PARAM_TYPES(TEEC_MEMREF_PARTIAL_INPUT,
 					 TEEC_VALUE_INPUT, TEEC_MEMREF_WHOLE,
 					 TEEC_NONE);
@@ -192,6 +199,30 @@ static size_t send_image_data(size_t sz, size_t offset, int flags)
 	return sz;
 }
 
+static void makesecure(void)
+{
+	TEEC_Result res;
+	TEEC_Operation op;
+	uint32_t err_origin;
+
+	memset(&op, 0, sizeof(op));
+	#if 0
+	op.paramTypes = TEEC_PARAM_TYPES(TEEC_MEMREF_WHOLE, TEEC_NONE,
+					 TEEC_NONE, TEEC_NONE);
+	op.params[0].memref.parent = &outm;
+	#else
+	op.paramTypes = TEEC_PARAM_TYPES(TEEC_VALUE_INPUT, TEEC_NONE,
+					 TEEC_NONE, TEEC_NONE);
+	op.params[0].value.a = outm.buffer;
+	op.params[0].value.b = outm.size;
+	#endif
+
+	PR("Invoke makesecure command... \n");
+	res = TEEC_MakeSecure(&sess, TA_SECVIDEO_DEMO_MAKESECURE, &op,
+				 &err_origin);
+	CHECK_INVOKE(res, err_origin);
+}
+
 static void display_file(const char *name)
 {
 	FILE *f;
@@ -202,7 +233,7 @@ static void display_file(const char *name)
 	if (!shm.buffer)
 		allocate_mem();
 
-	PR("Open file '%s'\n", name);
+	PR("display_file: Open file '%s'\n", name);
 
 	f = fopen(name, "r");
 	if (!f) {
@@ -234,12 +265,30 @@ static void display_file(const char *name)
 		}
 	} while (left > 0);
 	fclose(f);
+
+	#if 0 //device busy
+	if (outm.flags & TEEC_MEM_SECURE)
+	{
+		PR("makesecure fr display_file\n");
+		makesecure();
+	}
+	#endif
 }
 
 static void read_from_outbuf()
 {
 	int i;
 	uint8_t *p;
+
+	PR("read_from_outbuf\n");
+
+	#if 0 //device busy
+	if (outm.flags & TEEC_MEM_SECURE)
+	{
+		PR("makesecure fr read_from_outbuf\n");
+		makesecure();
+	}
+	#endif
 
 	if (!outm.d.fd)
 		allocate_outputmem();
@@ -293,6 +342,8 @@ int main(int argc, char *argv[])
 			read_from_outbuf();
 		} else if (!strcmp(argv[i], "-ns")) {
 			outm.flags &= ~TEEC_MEM_SECURE;
+		} else if (!strcmp(argv[i], "-s")) {
+			makesecure();
 		} else {
 			display_file(argv[i]);
 		}

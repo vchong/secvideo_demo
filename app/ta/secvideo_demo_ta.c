@@ -229,6 +229,9 @@ TEE_Result TA_InvokeCommandEntryPoint(void *sess_ctx, uint32_t cmd_id,
 		return clear_screen(param_types, params);
 	case TA_SECVIDEO_DEMO_IMAGE_DATA:
 		return image_data(param_types, params);
+	case TA_SECVIDEO_DEMO_MAKESECURE:
+		DMSG("TA_SECVIDEO_DEMO_MAKESECURE do nothing\n");
+		return TEE_SUCCESS;
 	default:
 		return TEE_ERROR_BAD_PARAMETERS;
 	}
