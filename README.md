@@ -25,6 +25,8 @@ $ git clone https://github.com/jforissier/secvid_demo.git
 $ cd secvid_demo
 $ git submodule update --init
 $ make
+
+#Avoid 'make -j#' as it causes error!
 ```
 
 3. Define the FVP environment in `run/env.sh`. Here is mine:
