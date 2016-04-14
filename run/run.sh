@@ -11,10 +11,9 @@ if [ -z `which $FVP_CMD` ] ; then
 	exit 1
 fi
 
-#$FVP_CMD -C pctl.startup=0.0.0.0 \
-# Do NOT run fr this script.
-# TYPE IT OUT FR CMDLINE!!!!!!
-FVP_Base_AEMv8A-AEMv8A -C pctl.startup=0.0.0.0 \
+#if no work, run directly fr cmd prompt
+#replace FVP_CMD wif actual cmd
+$FVP_CMD -C pctl.startup=0.0.0.0 \
 	-C bp.secure_memory=1 \
 	-C bp.tzc_400.diagnostics=1 \
 	-C cluster0.NUM_CORES=2 \
