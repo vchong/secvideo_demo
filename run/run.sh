@@ -4,13 +4,15 @@ cd "$HERE"
 
 FVP_CMD=FVP_Base_AEMv8A-AEMv8A
 
-[ -e env.sh ] && . env.sh
+#[ -e env.sh ] && . env.sh
 
 if [ -z `which $FVP_CMD` ] ; then
 	echo "Error: command $FVP_CMD not found" >&2
 	exit 1
 fi
 
+#if no work, run directly fr cmd prompt
+#replace FVP_CMD wif actual cmd
 $FVP_CMD -C pctl.startup=0.0.0.0 \
 	-C bp.secure_memory=1 \
 	-C bp.tzc_400.diagnostics=1 \
